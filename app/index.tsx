@@ -10,6 +10,7 @@ import {
 import { Link, useFocusEffect } from "expo-router";
 import { fetchApprovals, type Approval } from "@/lib/api";
 import { C } from "@/lib/theme";
+import { relativeTime } from "@/lib/time";
 
 export default function ApprovalsScreen() {
   const [items, setItems] = useState<Approval[]>([]);
@@ -190,12 +191,4 @@ function Stat({ value, label, tone }: { value: number; label: string; tone: stri
       <Text style={{ color: C.faint, fontSize: 10, marginTop: 2 }}>{label}</Text>
     </View>
   );
-}
-
-function relativeTime(value: string) {
-  const minutes = Math.max(1, Math.round((Date.now() - new Date(value).getTime()) / 60000));
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.round(hours / 24)}d ago`;
 }

@@ -5,7 +5,8 @@ vi.mock("./config", () => ({
   CONFIG: { resolvdUrl: "https://resolvd.test", resolvdToken: "tok" },
 }));
 
-import { fetchApprovals, type Approval } from "./api";
+
+import { decide, fetchApprovals, type Approval } from "./api";
 
 const GOOD: Approval = {
   id: "a1",
@@ -32,5 +33,25 @@ describe("fetchApprovals", () => {
       new Response(JSON.stringify({ approvals: [GOOD, { id: null }] })),
     );
     expect(await fetchApprovals()).toEqual([GOOD]);
+  });
+});
+
+const BAD: Approval = {
+  id: "",
+  source: "resolvd",
+  title: "x",
+  detail: "",
+  proposedAction: "",
+  reason: null,
+  createdAt: "",
+};
+
+describe("decide", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("returns false for an empty id without calling fetch", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    expect(await decide(BAD, true)).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });
