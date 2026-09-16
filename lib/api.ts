@@ -32,6 +32,7 @@ export async function decide(
   approval: Approval,
   approve: boolean,
 ): Promise<boolean> {
+  if (!approval.id) return false; // empty id would be a meaningless POST
   if (!isConfigured()) return true; // demo mode
   try {
     const res = await fetch(`${CONFIG.resolvdUrl}/api/approve`, {
