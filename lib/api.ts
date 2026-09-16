@@ -20,11 +20,27 @@ export async function fetchApprovals(): Promise<Approval[]> {
       headers: { "x-resolvd-token": CONFIG.resolvdToken },
     });
     if (!res.ok) return [];
-    const json = (await res.json()) as { approvals?: Approval[] };
-    return json.approvals ?? [];
+    const json = (await res.json()) as { approvals?: unknown };
+    if (!Array.isArray(json.approvals)) return [];
+    return json.approvals.filter(isApproval);
   } catch {
     return [];
   }
+}
+
+function isApproval(value: unknown): value is Approval {
+  if (typeof value !== "object" || value === null) return false;
+  const a = value as Record<string, unknown>;
+  return (
+    typeof a.id === "string" &&
+    a.id.length > 0 &&
+    typeof a.source === "string" &&
+    typeof a.title === "string" &&
+    typeof a.detail === "string" &&
+    typeof a.proposedAction === "string" &&
+    (a.reason === null || typeof a.reason === "string") &&
+    typeof a.createdAt === "string"
+  );
 }
 
 // Approve or deny, routes back to the originating agent's approve endpoint.
